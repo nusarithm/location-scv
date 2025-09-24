@@ -17,7 +17,7 @@ import (
 // @title Location Service API
 // @version 1.0
 // @description API untuk pencarian dan mendapatkan data GeoJSON wilayah Indonesia
-// @host localhost:8080
+// @host location-svc.nusarithm.id
 // @BasePath /
 func main() {
 	// Inisialisasi Echo
@@ -30,7 +30,11 @@ func main() {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+		AllowHeaders: []string{"*"},
+	}))
 
 	// Inisialisasi koneksi database
 	database, err := db.Init()
