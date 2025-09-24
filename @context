@@ -1,0 +1,119 @@
+# 📌 Location Service – Context & Guidelines
+
+## 🏗 Arsitektur Project
+
+```
+/location-svc
+  /cmd
+    main.go              → entrypoint aplikasi
+  /internal
+    /db                  → koneksi database Postgres + PostGIS
+    /models              → struct data (Simple, Location, GeoJSON, dll)
+    /repositories        → query ke DB
+    /handlers            → Echo handler (search, geojson)
+    /routes              → routing endpoint
+  /docs                  → auto generated Swagger docs
+  context.md             → file ini
+  go.mod
+  go.sum
+```
+
+## ⚙️ Teknologi
+
+* **Golang** (Echo framework)
+* **PostgreSQL + PostGIS** (DB: `bgn`)
+* **Swagger (swaago/echo-swagger)** untuk dokumentasi API
+* **Mapbox** (konsumsi GeoJSON)
+
+---
+
+## 🔎 Endpoint Search (Tag: `search`)
+
+1. `GET /search/propinsi`
+   → list semua propinsi
+
+2. `GET /search/kabupaten?propinsi_id={id}`
+   → list kabupaten dalam propinsi
+
+3. `GET /search/kecamatan?kabupaten_id={id}`
+   → list kecamatan dalam kabupaten
+
+4. `GET /search/kelurahan?kecamatan_id={id}`
+   → list kelurahan dalam kecamatan
+
+📌 Response format:
+
+```json
+[
+  { "id": 3201, "name": "Kabupaten Bogor" },
+  { "id": 3202, "name": "Kabupaten Sukabumi" }
+]
+```
+
+---
+
+## 🌍 Endpoint GeoJSON (Tag: `geojson`)
+
+1. `GET /geojson/propinsi/:id`
+2. `GET /geojson/kabupaten/:id`
+3. `GET /geojson/kecamatan/:id`
+4. `GET /geojson/kelurahan/:id`
+
+📌 Response format:
+
+```json
+{
+  "type": "Feature",
+  "properties": {
+    "id": 3201,
+    "name": "Kabupaten Bogor",
+    "type": "kabupaten"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [...]
+  }
+}
+```
+
+---
+
+## 📖 Swagger
+
+* Endpoint Swagger: `http://localhost:8080/swagger/index.html`
+* Regenerate docs setelah update anotasi:
+
+```bash
+swag init -g cmd/main.go
+```
+
+---
+
+## 🔑 Aturan Coding
+
+* Semua query ke DB lewat **repositories**.
+* Handler hanya untuk `bind request` & `return response`.
+* Gunakan `ST_AsGeoJSON` untuk geometry → frontend Mapbox.
+* Pastikan ada `@Tags` pada anotasi Swagger untuk grouping (`search`, `geojson`).
+* Gunakan `snake_case` untuk nama kolom DB, `camelCase` untuk JSON response.
+
+---
+
+## 🚀 Alur Development
+
+1. Run Postgres + PostGIS (misal via Docker).
+2. Jalankan service:
+
+   ```bash
+   go run cmd/main.go
+   ```
+3. Akses Swagger di browser.
+4. Test endpoint pakai Swagger atau `curl`.
+5. Commit dengan message jelas (ex: `feat: add geojson kabupaten endpoint`).
+
+## 🐳 Docker Setup
+- Build & run: `docker-compose up --build`
+- App service: http://localhost:8080
+- Swagger: http://localhost:8080/swagger/index.html
+- DB: PostgreSQL + PostGIS (port 5432, user: postgres, pass: postgres, db: bgn)
+- Data persistent di folder: `./data/postgres`
