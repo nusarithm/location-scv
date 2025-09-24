@@ -10,19 +10,3 @@ services:
     depends_on:
       - db
     restart: unless-stopped
-
-  db:
-    image: postgis/postgis:15-3.3
-    environment:
-      POSTGRES_DB: bgn
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-      - ./database:/docker-entrypoint-initdb.d
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
