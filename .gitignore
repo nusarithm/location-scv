@@ -47,3 +47,9 @@ Thumbs.db
 docs/docs.go
 docs/swagger.json
 docs/swagger.yaml
+
+docker-compose.override.yml
+docker-compose.prod.yml
+docker-compose.dev.yml
+docker-compose.local.yml
+docker-compose.yml
